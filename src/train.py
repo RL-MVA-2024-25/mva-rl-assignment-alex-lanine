@@ -84,7 +84,7 @@ class ProjectAgent:
         # Save the model
         torch.save(self.model.state_dict(), full_path)
 
-    def load(self, filename="best_512model.pth", subdir='best_model'):
+    def load(self, filename="best_512model-2.pth", subdir='best_model'):
         load_path = os.path.join(self.model_dir, subdir, filename)       
         device = self.device
         self.model.load_state_dict(torch.load(load_path, map_location=device))
@@ -190,7 +190,7 @@ def main():
     nb_neurons= 512
     max_episode = 400    
     agent = ProjectAgent()
-    agent.train(env, max_episode,filename="best_512model.pth")
+    agent.train(env, max_episode,filename="best_512model-2.pth")
 
                         
 if __name__ == "__main__":
