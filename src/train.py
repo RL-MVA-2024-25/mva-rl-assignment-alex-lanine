@@ -52,7 +52,7 @@ class ProjectAgent:
         self.epsilon_stop = epsilon_stop
         self.epsilon_delay = epsilon_delay
         self.epsilon_step = (self.epsilon_max-self.epsilon_min)/self.epsilon_stop
-        self.model = self.defaul_model().to(self.device)
+        self.model = self.default_model().to(self.device)
         self.target_model = deepcopy(self.model).to(self.device)
         self.criterion = criterion
         self.lr = learning_rate
