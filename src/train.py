@@ -13,7 +13,7 @@ from evaluate import evaluate_HIV, evaluate_HIV_population
 from utils import ReplayBuffer
 
 #set up the environment
-max_episode = 200
+max_episode = 400
 env = TimeLimit(
     env=HIVPatient(domain_randomization=True), max_episode_steps=max_episode
 ) 
@@ -84,7 +84,7 @@ class ProjectAgent:
         # Save the model
         torch.save(self.model.state_dict(), full_path)
 
-    def load(self, filename="best_model.pth", subdir='best_model'):
+    def load(self, filename="best_512model.pth", subdir='best_model'):
         load_path = os.path.join(self.model_dir, subdir, filename)       
         device = self.device
         self.model.load_state_dict(torch.load(load_path, map_location=device))
@@ -164,8 +164,10 @@ class ProjectAgent:
         device = self.device 
         state_dim = env.observation_space.shape[0]
         n_action = 4 
-        nb_neurons = 200
+        nb_neurons = 512
         DQN = torch.nn.Sequential(nn.Linear(state_dim,nb_neurons),
+                             nn.ReLU(),
+                             nn.Linear(nb_neurons,nb_neurons),
                              nn.ReLU(),
                              nn.Linear(nb_neurons,nb_neurons),
                              nn.ReLU(),
@@ -178,6 +180,7 @@ class ProjectAgent:
         return DQN
         
 
+                        
 def main():
     #declare neteork
     print("test1")
