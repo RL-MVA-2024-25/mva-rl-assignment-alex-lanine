@@ -84,7 +84,7 @@ class ProjectAgent:
         # Save the model
         torch.save(self.model.state_dict(), full_path)
 
-    def load(self, filename, subdir='best_model'):
+    def load(self, filename="best_model.pth", subdir='best_model'):
         load_path = os.path.join(self.model_dir, subdir, filename)       
         device = self.device
         self.model.load_state_dict(torch.load(load_path, map_location=device))
