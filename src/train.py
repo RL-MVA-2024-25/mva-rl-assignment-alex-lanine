@@ -15,7 +15,7 @@ from utils import ReplayBuffer
 #set up the environment
 max_episode = 200
 env = TimeLimit(
-    env=HIVPatient(domain_randomization=False), max_episode_steps=max_episode
+    env=HIVPatient(domain_randomization=True), max_episode_steps=max_episode
 ) 
 
 
@@ -24,7 +24,6 @@ class ProjectAgent:
     
     #initialize TO DO  
     def __init__(self, 
-                 model, 
                  nb_actions = 4,
                  learning_rate = 1e-3,
                  gamma = 0.99,
@@ -53,7 +52,7 @@ class ProjectAgent:
         self.epsilon_stop = epsilon_stop
         self.epsilon_delay = epsilon_delay
         self.epsilon_step = (self.epsilon_max-self.epsilon_min)/self.epsilon_stop
-        self.model = model.to(self.device)
+        self.model = self.defaul_model().to(self.device)
         self.target_model = deepcopy(self.model).to(self.device)
         self.criterion = criterion
         self.lr = learning_rate
@@ -160,39 +159,36 @@ class ProjectAgent:
         self.model.load_state_dict(self.best_model.state_dict())
         self.save(filename=filename)
         return self.best_eval
+        
+    def default_model(self):
+        device = self.device 
+        state_dim = env.observation_space.shape[0]
+        n_action = 4 
+        nb_neurons = 200
+        DQN = torch.nn.Sequential(nn.Linear(state_dim,nb_neurons),
+                             nn.ReLU(),
+                             nn.Linear(nb_neurons,nb_neurons),
+                             nn.ReLU(),
+                             nn.Linear(nb_neurons,nb_neurons),
+                             nn.ReLU(),
+                             nn.Linear(nb_neurons,nb_neurons),
+                             nn.ReLU(),
+                             nn.Linear(nb_neurons,n_action))
+        
+        return DQN
+        
 
 def main():
-    print("Continuing Training")
-    # Set up environment and network architecture (same as before)
-    max_episode = 200  # Number of additional episodes you want to train
+    #declare neteork
+    print("test1")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     state_dim = env.observation_space.shape[0]
-    n_action = env.action_space.n
-    nb_neurons = 200
+    n_action = 4
+    nb_neurons= 512
+    max_episode = 400    
+    agent = ProjectAgent()
+    agent.train(env, max_episode,filename="best_512model.pth")
 
-    DQN = torch.nn.Sequential(
-        nn.Linear(state_dim, nb_neurons),
-        nn.ReLU(),
-        nn.Linear(nb_neurons, nb_neurons),
-        nn.ReLU(),
-        nn.Linear(nb_neurons, nb_neurons),
-        nn.ReLU(),
-        nn.Linear(nb_neurons, nb_neurons),
-        nn.ReLU(),
-        nn.Linear(nb_neurons, n_action)
-    )
-
-    # Create the agent
-    agent = ProjectAgent(DQN)
-
-    # Update model_dir if necessary
-    agent.model_dir = "/content/drive/MyDrive/rl_folder/models/"
-
-    # Load the saved best model
-    agent.load(filename="best_model.pth", subdir="best_model")
-
-    # Continue training for additional episodes
-    additional_episodes = 200  # or whatever number of new episodes you want
-    agent.train(env, additional_episodes, filename="best_model.pth")
-
+                        
 if __name__ == "__main__":
     main()
